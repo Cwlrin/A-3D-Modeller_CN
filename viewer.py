@@ -11,7 +11,7 @@ from OpenGL.raw.GL.VERSION.GL_1_0 import GL_LIGHTING, glClear, GL_DEPTH_BUFFER_B
 from OpenGL.raw.GLU import gluPerspective
 from OpenGL.raw.GLUT import glutGet, GLUT_WINDOW_WIDTH, GLUT_WINDOW_HEIGHT
 
-from node import Sphere
+from node import Sphere, SnowFigure
 from primitive import init_primitives
 from scene import Scene
 
@@ -130,6 +130,11 @@ class Viewer(object):
         sphere_node.scale(4)
         # 将球体放进场景中，默认在正中央
         self.scene.add_node(sphere_node)
+        # 添加小雪人
+        hierarchical_node = SnowFigure()
+        hierarchical_node.translate(-2, 0, -2)
+        hierarchical_node.scale(2)
+        self.scene.add_node(hierarchical_node)
 
 
 if __name__ == "__main__":
