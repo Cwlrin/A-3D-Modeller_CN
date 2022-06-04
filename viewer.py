@@ -11,6 +11,8 @@ from OpenGL.raw.GL.VERSION.GL_1_0 import GL_LIGHTING, glClear, GL_DEPTH_BUFFER_B
 from OpenGL.raw.GLU import gluPerspective
 from OpenGL.raw.GLUT import glutGet, GLUT_WINDOW_WIDTH, GLUT_WINDOW_HEIGHT
 
+from node import Sphere
+from primitive import init_primitives
 from scene import Scene
 
 
@@ -25,6 +27,7 @@ class Viewer(object):
         self.init_scene()
         # 初始化交互操作相关的代码
         self.init_interaction()
+        init_primitives()
 
     def init_interface(self):
         """ 初始化窗口并注册渲染函数 """

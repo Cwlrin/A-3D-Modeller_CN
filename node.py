@@ -4,6 +4,7 @@ from OpenGL.GL import glCallList, glColor3f, glMaterialfv, glMultMatrixf, glPopM
 import numpy
 
 import color
+from primitive import G_OBJ_SPHERE
 
 
 class Node(object):
@@ -31,3 +32,19 @@ class Node(object):
 
     def render_self(self):
         raise NotImplementedError("The Abstract Node Class doesn't define 'render_self'")
+
+
+class Primitive(Node):
+    def __init__(self):
+        super(Primitive, self).__init__()
+        self.call_list = None
+
+    def render_self(self):
+        glCallList(self.call_list)
+
+
+class Sphere(Primitive):
+    """ 球形图元 """
+    def __init__(self):
+        super(Sphere, self).__init__()
+        self.call_list = G_OBJ_SPHERE
