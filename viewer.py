@@ -1,20 +1,26 @@
-import numpy
-from OpenGL.GL import glClearColor, glColorMaterial, glCullFace, glDepthFunc, glEnable, glLightfv, \
-    GL_AMBIENT_AND_DIFFUSE, GL_BACK, GL_CULL_FACE, GL_COLOR_MATERIAL, GL_DEPTH_TEST, GL_FRONT_AND_BACK, GL_LESS, \
-    GL_LIGHT0, GL_POSITION, GL_SPOT_DIRECTION
-from OpenGL.GLUT import glutCreateWindow, glutDisplayFunc, glutInit, glutInitDisplayMode, glutInitWindowSize, \
-    glutMainLoop, GLUT_SINGLE, GLUT_RGB
+from OpenGL.GL import glCallList, glClear, glClearColor, glColorMaterial, glCullFace, glDepthFunc, glDisable, glEnable,\
+                      glFlush, glGetFloatv, glLightfv, glLoadIdentity, glMatrixMode, glMultMatrixf, glPopMatrix, \
+                      glPushMatrix, glTranslated, glViewport, \
+                      GL_AMBIENT_AND_DIFFUSE, GL_BACK, GL_CULL_FACE, GL_COLOR_BUFFER_BIT, GL_COLOR_MATERIAL, \
+                      GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST, GL_FRONT_AND_BACK, GL_LESS, GL_LIGHT0, GL_LIGHTING, \
+                      GL_MODELVIEW, GL_MODELVIEW_MATRIX, GL_POSITION, GL_PROJECTION, GL_SPOT_DIRECTION
 from OpenGL.constants import GLfloat_3, GLfloat_4
-from OpenGL.raw.GL.VERSION.GL_1_0 import GL_LIGHTING, glClear, GL_DEPTH_BUFFER_BIT, GL_MODELVIEW, glMatrixMode, \
-    GL_COLOR_BUFFER_BIT, glPushMatrix, glLoadIdentity, glDisable, glPopMatrix, glFlush, GL_PROJECTION, glViewport, \
-    glTranslated, glCallList
-from OpenGL.raw.GLU import gluPerspective
-from OpenGL.raw.GLUT import glutGet, GLUT_WINDOW_WIDTH, GLUT_WINDOW_HEIGHT
+from OpenGL.GLU import gluPerspective, gluUnProject
+from OpenGL.GLUT import glutCreateWindow, glutDisplayFunc, glutGet, glutInit, glutInitDisplayMode, \
+                        glutInitWindowSize, glutMainLoop, \
+                        GLUT_SINGLE, GLUT_RGB, GLUT_WINDOW_HEIGHT, GLUT_WINDOW_WIDTH, glutCloseFunc
+import numpy
+from numpy.linalg import norm, inv
+import random
+from OpenGL.GL import glBegin, glColor3f, glEnd, glEndList, glLineWidth, glNewList, glNormal3f, glVertex3f, \
+                      GL_COMPILE, GL_LINES, GL_QUADS
+from OpenGL.GLU import gluDeleteQuadric, gluNewQuadric, gluSphere
 
-from interaction import Interaction
-from node import Sphere, SnowFigure, Cube
-from primitive import init_primitives, G_OBJ_PLANE
+import color
 from scene import Scene
+from primitive import init_primitives, G_OBJ_PLANE
+from node import Sphere, Cube, SnowFigure
+from interaction import Interaction
 
 
 class Viewer(object):
@@ -136,10 +142,16 @@ class Viewer(object):
         # 清空颜色缓存与深度缓存
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        # 设置模型视图矩阵，目前为止用单位矩阵就行了。
+        # 设置模型视图矩阵，将 ModelView 矩阵设为轨迹球的旋转矩阵
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
         glLoadIdentity()
+        glMultMatrixf(self.interaction.trackball.matrix)
+
+        # 存储ModelView矩阵与其逆矩阵之后做坐标系转换用
+        currentModelView = numpy.array(glGetFloatv(GL_MODELVIEW_MATRIX))
+        self.modelView = numpy.transpose(currentModelView)
+        self.inverseModelView = inv(numpy.transpose(currentModelView))
 
         # 渲染场景
         self.scene.render()

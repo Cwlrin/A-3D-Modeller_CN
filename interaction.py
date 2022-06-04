@@ -30,7 +30,8 @@ class Interaction(object):
     def handle_mouse_button(self, button, mode, x, y):
         """ 当鼠标按键被点击或者释放的时候调用 """
         xSize, ySize = glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT)
-        y = ySize - y  # OpenGL原点在窗口左下角，窗口原点在左上角，所以需要这种转换。
+        y = ySize - y
+        # OpenGL 原点在窗口左下角，窗口原点在左上角，所以需要这种转换。
         self.mouse_loc = (x, y)
 
         if mode == GLUT_DOWN:
@@ -40,7 +41,8 @@ class Interaction(object):
                 pass
             elif button == GLUT_LEFT_BUTTON:
                 self.trigger('pick', x, y)
-        else:  # 鼠标按键被释放的时候
+        else:
+            # 鼠标按键被释放的时候
             self.pressed = None
         # 标记当前窗口需要重新绘制
         glutPostRedisplay()
@@ -81,3 +83,6 @@ class Interaction(object):
         elif key == GLUT_KEY_RIGHT:
             self.trigger('rotate_color', forward=False)
         glutPostRedisplay()
+
+    def register_callback(self, name, func):
+        self.callbacks[name].append(func)
