@@ -64,3 +64,24 @@ class Scene(object):
         translation = inv_modelview.dot(pre_tran)
 
         new_node.translate(translation[0], translation[1], translation[2])
+
+    def move_selected(self, start, direction, inv_modelview):
+
+        if self.selected_node is None: return
+
+        # 找到选中节点的坐标与深度（距离）
+        node = self.selected_node
+        depth = node.depth
+        oldloc = node.selected_loc
+
+        # 新坐标的深度保持不变
+        newloc = (start + direction * depth)
+
+        # 得到世界坐标系中的移动坐标差
+        translation = newloc - oldloc
+        pre_tran = numpy.array([translation[0], translation[1], translation[2], 0])
+        translation = inv_modelview.dot(pre_tran)
+
+        # 节点做平移变换
+        node.translate(translation[0], translation[1], translation[2])
+        node.selected_loc = newloc
