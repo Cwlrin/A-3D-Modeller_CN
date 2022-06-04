@@ -10,6 +10,8 @@ from transformation import translation, scaling
 
 
 class Node(object):
+    """ 场景元素的基类 """
+
     def __init__(self):
         # 该节点的颜色序号
         self.color_index = random.randint(color.MIN_COLOR, color.MAX_COLOR)
@@ -39,29 +41,40 @@ class Node(object):
             glMaterialfv(GL_FRONT, GL_EMISSION, [0.0, 0.0, 0.0])
         glPopMatrix()
 
-    def select(self, select=None):
-        if select is not None:
-            self.selected = select
-        else:
-            self.selected = not self.selected
-
     def render_self(self):
-        raise NotImplementedError("The Abstract Node Class doesn't define 'render_self'")
+        raise NotImplementedError("抽象节点类 'render_self' 未定义")
 
     def translate(self, x, y, z):
         self.translation_matrix = numpy.dot(self.translation_matrix, translation([x, y, z]))
+
+    def rotate_color(self, forwards):
+        self.color_index += 1 if forwards else -1
+        if self.color_index > color.MAX_COLOR:
+            self.color_index = color.MIN_COLOR
+        if self.color_index < color.MIN_COLOR:
+            self.color_index = color.MAX_COLOR
 
     def scale(self, s):
         self.scaling_matrix = numpy.dot(self.scaling_matrix, scaling([s, s, s]))
 
     def pick(self, start, direction, mat):
-        # 将modelview矩阵乘上节点的变换矩阵
-        newmat = numpy.dot(
-            numpy.dot(mat, self.translation_matrix),
-            numpy.linalg.inv(self.scaling_matrix)
-        )
+        """
+        返回光线是否击中对象
+        参数:
+            start, direction    要检查的光线
+            mat                 用于变换光线的 modelview 矩阵
+        """
+        # 将 modelview 矩阵乘上节点的变换矩阵
+        newmat = numpy.dot(numpy.dot(mat, self.translation_matrix), numpy.linalg.inv(self.scaling_matrix))
         results = self.aabb.ray_hit(start, direction, newmat)
         return results
+
+    def select(self, select=None):
+        """ 切换或设置选定状态 """
+        if select is not None:
+            self.selected = select
+        else:
+            self.selected = not self.selected
 
 
 class Primitive(Node):
@@ -110,3 +123,4 @@ class SnowFigure(HierarchicalNode):
         self.child_nodes[2].scale(0.7)
         for child_node in self.child_nodes:
             child_node.color_index = color.MIN_COLOR
+        self.aabb = AABB([0.0, 0.0, 0.0], [0.5, 1.1, 0.5])

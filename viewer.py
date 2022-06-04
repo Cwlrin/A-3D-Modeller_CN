@@ -1,19 +1,17 @@
-from OpenGL.GL import glCallList, glClear, glClearColor, glColorMaterial, glCullFace, glDepthFunc, glDisable, glEnable,\
-                      glFlush, glGetFloatv, glLightfv, glLoadIdentity, glMatrixMode, glMultMatrixf, glPopMatrix, \
-                      glPushMatrix, glTranslated, glViewport, \
-                      GL_AMBIENT_AND_DIFFUSE, GL_BACK, GL_CULL_FACE, GL_COLOR_BUFFER_BIT, GL_COLOR_MATERIAL, \
-                      GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST, GL_FRONT_AND_BACK, GL_LESS, GL_LIGHT0, GL_LIGHTING, \
-                      GL_MODELVIEW, GL_MODELVIEW_MATRIX, GL_POSITION, GL_PROJECTION, GL_SPOT_DIRECTION
+from OpenGL.GL import glCallList, glClear, glClearColor, glColorMaterial, glCullFace, glDepthFunc, glDisable, glEnable, \
+    glFlush, glGetFloatv, glLightfv, glLoadIdentity, glMatrixMode, glMultMatrixf, glPopMatrix, glPushMatrix, \
+    glTranslated, glViewport, GL_AMBIENT_AND_DIFFUSE, GL_BACK, GL_CULL_FACE, GL_COLOR_BUFFER_BIT, GL_COLOR_MATERIAL, \
+    GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST, GL_FRONT_AND_BACK, GL_LESS, GL_LIGHT0, GL_LIGHTING, GL_MODELVIEW, \
+    GL_MODELVIEW_MATRIX, GL_POSITION, GL_PROJECTION, GL_SPOT_DIRECTION
 from OpenGL.constants import GLfloat_3, GLfloat_4
 from OpenGL.GLU import gluPerspective, gluUnProject
-from OpenGL.GLUT import glutCreateWindow, glutDisplayFunc, glutGet, glutInit, glutInitDisplayMode, \
-                        glutInitWindowSize, glutMainLoop, \
-                        GLUT_SINGLE, GLUT_RGB, GLUT_WINDOW_HEIGHT, GLUT_WINDOW_WIDTH, glutCloseFunc
+from OpenGL.GLUT import glutCreateWindow, glutDisplayFunc, glutGet, glutInit, glutInitDisplayMode, glutInitWindowSize, \
+    glutMainLoop, GLUT_SINGLE, GLUT_RGB, GLUT_WINDOW_HEIGHT, GLUT_WINDOW_WIDTH, glutCloseFunc
 import numpy
 from numpy.linalg import norm, inv
 import random
-from OpenGL.GL import glBegin, glColor3f, glEnd, glEndList, glLineWidth, glNewList, glNormal3f, glVertex3f, \
-                      GL_COMPILE, GL_LINES, GL_QUADS
+from OpenGL.GL import glBegin, glColor3f, glEnd, glEndList, glLineWidth, glNewList, glNormal3f, glVertex3f, GL_COMPILE, \
+    GL_LINES, GL_QUADS
 from OpenGL.GLU import gluDeleteQuadric, gluNewQuadric, gluSphere
 
 import color
@@ -60,12 +58,14 @@ class Viewer(object):
         glEnable(GL_DEPTH_TEST)
         # 测试是否被遮挡，被遮挡的物体不予渲染
         glDepthFunc(GL_LESS)
+
         # 启用0号光源
         glEnable(GL_LIGHT0)
         # 设置光源的位置
         glLightfv(GL_LIGHT0, GL_POSITION, GLfloat_4(0, 0, 1, 0))
         # 设置光源的照射方向
         glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, GLfloat_3(0, 0, -1))
+
         # 设置材质颜色
         glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
         glEnable(GL_COLOR_MATERIAL)
@@ -108,49 +108,6 @@ class Viewer(object):
         self.interaction.register_callback('rotate_color', self.rotate_color)
         self.interaction.register_callback('scale', self.scale)
 
-    def get_ray(self, x, y):
-        """ 返回光源和激光方向 """
-        self.init_view()
-
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-
-        # 得到激光的起始点
-        start = numpy.array(gluUnProject(x, y, 0.001))
-        end = numpy.array(gluUnProject(x, y, 0.999))
-
-        # 得到激光的方向
-        direction = end - start
-        direction = direction / norm(direction)
-
-        return start, direction
-
-    def pick(self, x, y):
-        """
-        鼠标选中一个节点
-        是否被选中以及哪一个被选中交由 Scene 下的 pick 处理
-        """
-        start, direction = self.get_ray(x, y)
-        self.scene.pick(start, direction, self.modelView)
-
-    def move(self, x, y):
-        """ 移动当前选中的节点 """
-        start, direction = self.get_ray(x, y)
-        self.scene.move_selected(start, direction, self.inverseModelView)
-
-    def place(self, shape, x, y):
-        """ 在鼠标的位置上新放置一个节点 """
-        start, direction = self.get_ray(x, y)
-        self.scene.place(shape, start, direction, self.inverseModelView)
-
-    def rotate_color(self, forward):
-        """ 更改选中节点的颜色 """
-        pass
-
-    def scale(self, up):
-        """ 改变选中节点的大小 """
-        pass
-
     def main_loop(self):
         # 程序主循环开始
         glutMainLoop()
@@ -169,6 +126,10 @@ class Viewer(object):
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
         glLoadIdentity()
+        glMultMatrixf(self.interaction.trackball.matrix)
+
+        loc = self.interaction.translation
+        glTranslated(loc[0], loc[1], loc[2])
         glMultMatrixf(self.interaction.trackball.matrix)
 
         # 存储ModelView矩阵与其逆矩阵之后做坐标系转换用
@@ -203,6 +164,49 @@ class Viewer(object):
         gluPerspective(70, aspect_ratio, 0.1, 1000.0)
         # 摄像机镜头从原点后退15个单位
         glTranslated(0, 0, -15)
+
+    def get_ray(self, x, y):
+        """ 返回光源和激光方向 """
+        self.init_view()
+
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+
+        # 得到激光的起始点
+        start = numpy.array(gluUnProject(x, y, 0.001))
+        end = numpy.array(gluUnProject(x, y, 0.999))
+
+        # 得到激光的方向
+        direction = end - start
+        direction = direction / norm(direction)
+
+        return start, direction
+
+    def pick(self, x, y):
+        """
+        鼠标选中一个节点
+        是否被选中以及哪一个被选中交由 Scene 下的 pick 处理
+        """
+        start, direction = self.get_ray(x, y)
+        self.scene.pick(start, direction, self.modelView)
+
+    def place(self, shape, x, y):
+        """ 在鼠标的位置上新放置一个节点 """
+        start, direction = self.get_ray(x, y)
+        self.scene.place(shape, start, direction, self.inverseModelView)
+
+    def move(self, x, y):
+        """ 移动当前选中的节点 """
+        start, direction = self.get_ray(x, y)
+        self.scene.move_selected(start, direction, self.inverseModelView)
+
+    def rotate_color(self, forward):
+        """ 更改选中节点的颜色 """
+        self.scene.rotate_selected_color(forward)
+
+    def scale(self, up):
+        """ 改变选中节点的大小 """
+        self.scene.scale_selected(up)
 
 
 if __name__ == "__main__":

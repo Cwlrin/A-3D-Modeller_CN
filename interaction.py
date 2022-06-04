@@ -11,7 +11,9 @@ class Interaction(object):
         """ 处理用户接口 """
         # 被按下的键
         self.pressed = None
-        # 轨迹球，会在之后进行说明
+        # 当前摄像机位置
+        self.translation = [0, 0, 0, 0]
+        # 轨迹球
         self.trackball = trackball.Trackball(theta=-25, distance=15)
         # 当前鼠标位置
         self.mouse_loc = None
@@ -21,17 +23,32 @@ class Interaction(object):
         self.register()
 
     def register(self):
-        """ 注册glut的事件回调函数 """
+        """ 注册 glut 的事件回调函数 """
         glutMouseFunc(self.handle_mouse_button)
         glutMotionFunc(self.handle_mouse_move)
         glutKeyboardFunc(self.handle_keystroke)
         glutSpecialFunc(self.handle_keystroke)
 
+    def register_callback(self, name, func):
+        """ 为特定事件注册回调 """
+        self.callbacks[name].append(func)
+
+    def trigger(self, name, *args, **kwargs):
+        """ 调用回调，转发参数 """
+        for func in self.callbacks[name]:
+            func(*args, **kwargs)
+
+    def translate(self, x, y, z):
+        """ 转换相机 """
+        self.translation[0] += x
+        self.translation[1] += y
+        self.translation[2] += z
+
     def handle_mouse_button(self, button, mode, x, y):
         """ 当鼠标按键被点击或者释放的时候调用 """
         xSize, ySize = glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT)
         y = ySize - y
-        # OpenGL 原点在窗口左下角，窗口原点在左上角，所以需要这种转换。
+        # OpenGL 原点在窗口左下角，窗口原点在左上角，所以需要这种转换
         self.mouse_loc = (x, y)
 
         if mode == GLUT_DOWN:
@@ -41,6 +58,10 @@ class Interaction(object):
                 pass
             elif button == GLUT_LEFT_BUTTON:
                 self.trigger('pick', x, y)
+            elif button == 3:  # 滚轮上划
+                self.translate(0, 0, 1.0)
+            elif button == 4:  # 滚轮下滑
+                self.translate(0, 0, -1.0)
         else:
             # 鼠标按键被释放的时候
             self.pressed = None
@@ -51,11 +72,13 @@ class Interaction(object):
         """ 鼠标移动时调用 """
         xSize, ySize = glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT)
         y = ySize - screen_y
+        # OpenGL 原点在窗口左下角，窗口原点在左上角，所以需要这种转换
         if self.pressed is not None:
             dx = x - self.mouse_loc[0]
             dy = y - self.mouse_loc[1]
             if self.pressed == GLUT_RIGHT_BUTTON and self.trackball is not None:
                 # 变化场景的角度
+                # 忽略更新的摄影机位置，因为我们希望始终围绕原点旋转
                 self.trackball.drag_to(self.mouse_loc[0], self.mouse_loc[1], dx, dy)
             elif self.pressed == GLUT_LEFT_BUTTON:
                 self.trigger('move', x, y)
@@ -74,6 +97,8 @@ class Interaction(object):
             self.trigger('place', 'sphere', x, y)
         elif key == 'c':
             self.trigger('place', 'cube', x, y)
+        elif key == 'f':
+            self.trigger('place', 'figure', x, y)
         elif key == GLUT_KEY_UP:
             self.trigger('scale', up=True)
         elif key == GLUT_KEY_DOWN:
@@ -83,10 +108,3 @@ class Interaction(object):
         elif key == GLUT_KEY_RIGHT:
             self.trigger('rotate_color', forward=False)
         glutPostRedisplay()
-
-    def trigger(self, name, *args, **kwargs):
-        for func in self.callbacks[name]:
-            func(*args, **kwargs)
-
-    def register_callback(self, name, func):
-        self.callbacks[name].append(func)

@@ -17,7 +17,7 @@ def make_plane():
         glVertex3f(-10.0, 0, -10 + 0.5 * i)
         glVertex3f(10.0, 0, -10 + 0.5 * i)
 
-    # Axes
+    # 轴
     glEnd()
     glLineWidth(5)
 
@@ -39,7 +39,7 @@ def make_plane():
     glVertex3f(0.0, 0.0, 5)
     glEnd()
 
-    # Draw the Y.
+    # 绘制 Y
     glBegin(GL_LINES)
     glColor3f(0.0, 0.0, 0.0)
     glVertex3f(0.0, 5.0, 0.0)
@@ -49,7 +49,7 @@ def make_plane():
     glVertex3f(0.0, 5.5, 0.0)
     glVertex3f(0.5, 6.0, 0.0)
 
-    # Draw the Z.
+    # 绘制 Z
     glVertex3f(-0.5, 0.0, 5.0)
     glVertex3f(0.5, 0.0, 5.0)
     glVertex3f(0.5, 0.0, 5.0)
@@ -57,7 +57,7 @@ def make_plane():
     glVertex3f(-0.5, 0.0, 6.0)
     glVertex3f(0.5, 0.0, 6.0)
 
-    # Draw the X.
+    # 绘制 X
     glVertex3f(5.0, 0.0, 0.5)
     glVertex3f(6.0, 0.0, -0.5)
     glVertex3f(5.0, 0.0, -0.5)
