@@ -139,7 +139,8 @@ class Viewer(object):
 
     def place(self, shape, x, y):
         """ 在鼠标的位置上新放置一个节点 """
-        pass
+        start, direction = self.get_ray(x, y)
+        self.scene.place(shape, start, direction, self.inverseModelView)
 
     def rotate_color(self, forward):
         """ 更改选中节点的颜色 """
