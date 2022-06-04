@@ -11,6 +11,7 @@ from OpenGL.raw.GL.VERSION.GL_1_0 import GL_LIGHTING, glClear, GL_DEPTH_BUFFER_B
 from OpenGL.raw.GLU import gluPerspective
 from OpenGL.raw.GLUT import glutGet, GLUT_WINDOW_WIDTH, GLUT_WINDOW_HEIGHT
 
+from interaction import Interaction
 from node import Sphere, SnowFigure, Cube
 from primitive import init_primitives, G_OBJ_PLANE
 from scene import Scene
@@ -94,6 +95,31 @@ class Viewer(object):
 
     def init_interaction(self):
         # 初始化交互操作相关的代码
+        self.interaction = Interaction()
+        self.interaction.register_callback('pick', self.pick)
+        self.interaction.register_callback('move', self.move)
+        self.interaction.register_callback('place', self.place)
+        self.interaction.register_callback('rotate_color', self.rotate_color)
+        self.interaction.register_callback('scale', self.scale)
+
+    def pick(self, x, y):
+        """ 鼠标选中一个节点 """
+        pass
+
+    def move(self, x, y):
+        """ 移动当前选中的节点 """
+        pass
+
+    def place(self, shape, x, y):
+        """ 在鼠标的位置上新放置一个节点 """
+        pass
+
+    def rotate_color(self, forward):
+        """ 更改选中节点的颜色 """
+        pass
+
+    def scale(self, up):
+        """ 改变选中节点的大小 """
         pass
 
     def main_loop(self):
