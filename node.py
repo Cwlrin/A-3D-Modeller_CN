@@ -4,7 +4,7 @@ from OpenGL.GL import glCallList, glColor3f, glMaterialfv, glMultMatrixf, glPopM
 import numpy
 
 import color
-from primitive import G_OBJ_SPHERE
+from primitive import G_OBJ_SPHERE, G_OBJ_CUBE
 from transformation import translation, scaling
 
 
@@ -52,10 +52,16 @@ class Primitive(Node):
 
 class Sphere(Primitive):
     """ 球形图元 """
-
     def __init__(self):
         super(Sphere, self).__init__()
         self.call_list = G_OBJ_SPHERE
+
+
+class Cube(Primitive):
+    """ 立方体图元 """
+    def __init__(self):
+        super(Cube, self).__init__()
+        self.call_list = G_OBJ_CUBE
 
 
 class HierarchicalNode(Node):

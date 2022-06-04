@@ -7,12 +7,12 @@ from OpenGL.GLUT import glutCreateWindow, glutDisplayFunc, glutInit, glutInitDis
 from OpenGL.constants import GLfloat_3, GLfloat_4
 from OpenGL.raw.GL.VERSION.GL_1_0 import GL_LIGHTING, glClear, GL_DEPTH_BUFFER_BIT, GL_MODELVIEW, glMatrixMode, \
     GL_COLOR_BUFFER_BIT, glPushMatrix, glLoadIdentity, glDisable, glPopMatrix, glFlush, GL_PROJECTION, glViewport, \
-    glTranslated
+    glTranslated, glCallList
 from OpenGL.raw.GLU import gluPerspective
 from OpenGL.raw.GLUT import glutGet, GLUT_WINDOW_WIDTH, GLUT_WINDOW_HEIGHT
 
-from node import Sphere, SnowFigure
-from primitive import init_primitives
+from node import Sphere, SnowFigure, Cube
+from primitive import init_primitives, G_OBJ_PLANE
 from scene import Scene
 
 
@@ -21,9 +21,9 @@ class Viewer(object):
         """ 初始化 viewer. """
         # 初始化接口，创建窗口并注册渲染函数
         self.init_interface()
-        # 初始化opengl的配置
+        # 初始化 OpenGL 的配置
         self.init_opengl()
-        # 初始化3d场景
+        # 初始化 3D 场景
         self.init_scene()
         # 初始化交互操作相关的代码
         self.init_interaction()
@@ -72,8 +72,28 @@ class Viewer(object):
         # 初始化场景内的对象
         self.create_sample_scene()
 
+    def create_sample_scene(self):
+        # 创建方体
+        cube_node = Cube()
+        cube_node.translate(2, 0, 2)
+        cube_node.color_index = 1
+        self.scene.add_node(cube_node)
+
+        # 创建一个球体
+        sphere_node = Sphere()
+        # 设置球体的颜色
+        sphere_node.color_index = 3
+        sphere_node.translate(-2, 0, 2)
+        # 将球体放进场景中，默认在正中央
+        self.scene.add_node(sphere_node)
+
+        # 添加小雪人
+        hierarchical_node = SnowFigure()
+        hierarchical_node.translate(-2, 0, -2)
+        self.scene.add_node(hierarchical_node)
+
     def init_interaction(self):
-        # 初始化交互操作相关的代码，之后实现
+        # 初始化交互操作相关的代码
         pass
 
     def main_loop(self):
@@ -81,7 +101,8 @@ class Viewer(object):
         glutMainLoop()
 
     def render(self):
-        # 程序进入主循环后每一次循环调用的渲染函数
+        """ 程序进入主循环后每一次循环调用的渲染函数 """
+        # 初始化投影矩阵
         self.init_view()
 
         # 启动光照
@@ -99,6 +120,7 @@ class Viewer(object):
 
         # 每次渲染后复位光照状态
         glDisable(GL_LIGHTING)
+        glCallList(G_OBJ_PLANE)
         glPopMatrix()
         # 把数据刷新到显存上
         glFlush()
@@ -120,21 +142,6 @@ class Viewer(object):
         gluPerspective(70, aspect_ratio, 0.1, 1000.0)
         # 摄像机镜头从原点后退15个单位
         glTranslated(0, 0, -15)
-
-    def create_sample_scene(self):
-        # 创建一个球体
-        sphere_node = Sphere()
-        # 设置球体的颜色
-        sphere_node.color_index = 2
-        sphere_node.translate(2, 2, 0)
-        sphere_node.scale(4)
-        # 将球体放进场景中，默认在正中央
-        self.scene.add_node(sphere_node)
-        # 添加小雪人
-        hierarchical_node = SnowFigure()
-        hierarchical_node.translate(-2, 0, -2)
-        hierarchical_node.scale(2)
-        self.scene.add_node(hierarchical_node)
 
 
 if __name__ == "__main__":
