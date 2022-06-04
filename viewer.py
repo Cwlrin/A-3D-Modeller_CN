@@ -11,6 +11,8 @@ from OpenGL.raw.GL.VERSION.GL_1_0 import GL_LIGHTING, glClear, GL_DEPTH_BUFFER_B
 from OpenGL.raw.GLU import gluPerspective
 from OpenGL.raw.GLUT import glutGet, GLUT_WINDOW_WIDTH, GLUT_WINDOW_HEIGHT
 
+from scene import Scene
+
 
 class Viewer(object):
     def __init__(self):
