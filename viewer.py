@@ -122,12 +122,15 @@ class Viewer(object):
         glTranslated(0, 0, -15)
 
     def create_sample_scene(self):
-        #创建一个球体
+        # 创建一个球体
         sphere_node = Sphere()
-        #设置球体的颜色
+        # 设置球体的颜色
         sphere_node.color_index = 2
-        #将球体放进场景中，默认在正中央
+        sphere_node.translate(2, 2, 0)
+        sphere_node.scale(4)
+        # 将球体放进场景中，默认在正中央
         self.scene.add_node(sphere_node)
+
 
 if __name__ == "__main__":
     viewer = Viewer()

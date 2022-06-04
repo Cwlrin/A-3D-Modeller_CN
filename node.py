@@ -5,6 +5,7 @@ import numpy
 
 import color
 from primitive import G_OBJ_SPHERE
+from transformation import translation, scaling
 
 
 class Node(object):
@@ -32,6 +33,12 @@ class Node(object):
 
     def render_self(self):
         raise NotImplementedError("The Abstract Node Class doesn't define 'render_self'")
+
+    def translate(self, x, y, z):
+        self.translation_matrix = numpy.dot(self.translation_matrix, translation([x, y, z]))
+
+    def scale(self, s):
+        self.scaling_matrix = numpy.dot(self.scaling_matrix, scaling([s, s, s]))
 
 
 class Primitive(Node):
