@@ -61,8 +61,11 @@ class Viewer(object):
         glClearColor(0.4, 0.4, 0.4, 0.0)
 
     def init_scene(self):
-        # 初始化场景，之后实现
-        pass
+        """ 初始化场景 """
+        # 创建一个场景实例
+        self.scene = Scene()
+        # 初始化场景内的对象
+        self.create_sample_scene()
 
     def init_interaction(self):
         # 初始化交互操作相关的代码，之后实现
@@ -87,7 +90,7 @@ class Viewer(object):
         glLoadIdentity()
 
         # 渲染场景
-        # self.scene.render()
+        self.scene.render()
 
         # 每次渲染后复位光照状态
         glDisable(GL_LIGHTING)
@@ -113,6 +116,13 @@ class Viewer(object):
         # 摄像机镜头从原点后退15个单位
         glTranslated(0, 0, -15)
 
+    def create_sample_scene(self):
+        #创建一个球体
+        sphere_node = Sphere()
+        #设置球体的颜色
+        sphere_node.color_index = 2
+        #将球体放进场景中，默认在正中央
+        self.scene.add_node(sphere_node)
 
 if __name__ == "__main__":
     viewer = Viewer()
