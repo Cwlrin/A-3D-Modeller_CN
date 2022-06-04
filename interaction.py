@@ -84,5 +84,9 @@ class Interaction(object):
             self.trigger('rotate_color', forward=False)
         glutPostRedisplay()
 
+    def trigger(self, name, *args, **kwargs):
+        for func in self.callbacks[name]:
+            func(*args, **kwargs)
+
     def register_callback(self, name, func):
         self.callbacks[name].append(func)

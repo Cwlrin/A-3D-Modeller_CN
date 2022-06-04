@@ -108,9 +108,30 @@ class Viewer(object):
         self.interaction.register_callback('rotate_color', self.rotate_color)
         self.interaction.register_callback('scale', self.scale)
 
+    def get_ray(self, x, y):
+        """ 返回光源和激光方向 """
+        self.init_view()
+
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+
+        # 得到激光的起始点
+        start = numpy.array(gluUnProject(x, y, 0.001))
+        end = numpy.array(gluUnProject(x, y, 0.999))
+
+        # 得到激光的方向
+        direction = end - start
+        direction = direction / norm(direction)
+
+        return start, direction
+
     def pick(self, x, y):
-        """ 鼠标选中一个节点 """
-        pass
+        """
+        鼠标选中一个节点
+        是否被选中以及哪一个被选中交由 Scene 下的 pick 处理
+        """
+        start, direction = self.get_ray(x, y)
+        self.scene.pick(start, direction, self.modelView)
 
     def move(self, x, y):
         """ 移动当前选中的节点 """
